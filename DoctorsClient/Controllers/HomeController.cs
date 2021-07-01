@@ -56,7 +56,7 @@ namespace DoctorsClient.Controllers
         public IActionResult GetPatients(string date)
         {
             var card = db.outpatient_cards.Include(p => p.Patient).Include(p => p.Doctor);
-            return Ok(card.Where(p => p.date == date));
+            return Ok(card.Where(p => p.date == date && p.doctorid == 1));//Надо будет как то запоминать айди доктора при авторизации
         }
         /*[HttpGet]
         public IActionResult GetRecord()
