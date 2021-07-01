@@ -37,26 +37,46 @@ namespace DoctorsClient.Controllers
         {
             return Content("Authorized");
         }
-        /* public IActionResult Index()
-         {
-             return View(db.patients.ToList());
-         }*/
         [HttpGet("get")]
-        public IActionResult Get()
+        public IActionResult Gete()
         {
             return Ok(db.patients.ToList());
         }
         [HttpGet("geting")]
-        public IActionResult Geting()
+        public IActionResult Geting(int? id = 1)
         {
+            /*Account account = db.accounts.Find(id);
+            account.test = db.test.Where(m => m.accountid == account.id);
+            return Ok(account);*/
             var players = db.test.Include(p => p.Account);
             return Ok(players.ToList());
         }
-        [HttpGet("{date}")]
-        public IActionResult GetPatients(string date)
+        [HttpGet("get/{date}")]
+        public IActionResult Get(string date)
         {
             var card = db.outpatient_cards.Include(p => p.Patient).Include(p => p.Doctor);
             return Ok(card.Where(p => p.date == date && p.doctorid == 1));//Надо будет как то запоминать айди доктора при авторизации
+        }
+        [HttpPost]
+        public IActionResult Create(Account account)
+        {
+            //Добавляем игрока в таблицу
+            db.accounts.Add(account);
+            db.SaveChanges();
+            return Ok(200);
+        }
+        [HttpGet("{id}")]
+        public Patient GetPatient(int id)
+        {
+            Patient patient = db.patients.FirstOrDefault(x => x.id == id);
+            return patient;
+        }
+        [HttpGet ("hello")]
+        public IActionResult Details(int id = 1)
+        {
+            Outpatient_card student = db.outpatient_cards.Find(id);
+            ViewBag.symptoms = db.outpatient_cards.ToList();
+            return Ok(student);
         }
         /*[HttpGet]
         public IActionResult GetRecord()

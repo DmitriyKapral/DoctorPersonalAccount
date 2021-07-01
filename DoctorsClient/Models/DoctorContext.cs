@@ -16,7 +16,6 @@ namespace DoctorsClient.Models
         public DbSet<Medication> medications { get; set; }
         public DbSet<Outpatient_card> outpatient_cards { get; set; }
         public DbSet<Symptom> symptoms { get; set; }
-
         public DbSet<Doctor> doctors { get; set; }
         //public DbSet<Order> orders { get; set; }
 
@@ -25,15 +24,5 @@ namespace DoctorsClient.Models
         {
             Database.EnsureCreated();
         }
-        /*public DoctorContext() : base("DefaultConnection")
-        { }
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Outpatient_card>().HasMany(c => c.Symptoms)
-                .WithMany(s => s.Outpatient_Cards)
-                .Map(t => t.MapLeftKey("CourseId")
-                .MapRightKey("StudentId")
-                .ToTable("CourseStudent"));
-        }*/
     }
 }

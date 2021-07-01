@@ -9,10 +9,5 @@ namespace DoctorsClient.Models
     {
         public int id { get; set; }
         public string name { get; set; }
-        public virtual ICollection<Outpatient_card> Outpatient_Cards { get; set; }
-        public Symptom()
-        {
-            Outpatient_Cards = new List<Outpatient_card>();
-        }
     }
 }

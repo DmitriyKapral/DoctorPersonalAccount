@@ -18,7 +18,7 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadTest();    // загрузка данных при старте компонента
+    this.loadTest();
   }
   // получаем данные через сервис
   loadPatients() {
