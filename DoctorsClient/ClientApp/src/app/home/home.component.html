@@ -1,0 +1,12 @@
+<h1>Список</h1>
+<tbody>
+  <tr *ngFor="let p of tests">
+    <td>{{p?.name}}</td>
+    <td>{{p?.accountid}}</td>
+    <td>{{p?.account.email}}</td>
+    <td>{{p?.account.password}}</td>
+    <td>{{p?.account.role}}</td>
+    <td>{{p?.testtwo.id}}</td>
+    <td>{{p?.testtwo.name}}</td>
+  </tr>
+</tbody>
