@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using DoctorsClient.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.OpenApi.Models;
 
 namespace DoctorsClient
 {
@@ -35,6 +36,15 @@ namespace DoctorsClient
             {
                 configuration.RootPath = "ClientApp/dist";
             });
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "Doctor API",
+                    Description = "ASP.NET Core Web API"
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,7 +58,11 @@ namespace DoctorsClient
             {
                 app.UseExceptionHandler("/Error");
             }
-
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Test API V1");
+            });
             app.UseStaticFiles();
             if (!env.IsDevelopment())
             {
@@ -77,6 +91,8 @@ namespace DoctorsClient
                     spa.UseAngularCliServer(npmScript: "start");
                 }
             });
+            
+
         }
     }
 }
