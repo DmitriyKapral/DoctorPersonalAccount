@@ -30,7 +30,7 @@ namespace DoctorsClient.Controllers
         {
             if (ModelState.IsValid)
             {
-                Doctor user = await db.doctors.FirstOrDefaultAsync(u => u.email == model.Email && u.password == model.Password);
+                Doctor user = await db.Doctors.FirstOrDefaultAsync(u => u.email == model.Email && u.password == model.Password);
                 if (user != null)
                 {
                     await Authenticate(model.Email); // аутентификация
@@ -52,11 +52,11 @@ namespace DoctorsClient.Controllers
         {
             if (ModelState.IsValid)
             {
-                Doctor user = await db.doctors.FirstOrDefaultAsync(u => u.email == model.Email);
+                Doctor user = await db.Doctors.FirstOrDefaultAsync(u => u.email == model.Email);
                 if (user == null)
                 {
                     // добавляем пользователя в бд
-                    db.doctors.Add(new Doctor { email = model.Email, password = model.Password });
+                    db.Doctors.Add(new Doctor { email = model.Email, password = model.Password });
                     await db.SaveChangesAsync();
 
                     await Authenticate(model.Email); // аутентификация
