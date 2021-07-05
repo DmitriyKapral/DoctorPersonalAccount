@@ -12,7 +12,7 @@ namespace DoctorsClient.Models
         [Key]
         public int id { get; set; }
         public string date { get; set; }
-        public TimeSpan time { get; set; }
+        public string time { get; set; }
         public string inspection_description { get; set; }
         [ForeignKey("Doctor")]
         public int doctorid { get; set; }
@@ -26,6 +26,9 @@ namespace DoctorsClient.Models
         [ForeignKey("Medication")]
         public int medicationid { get; set; }
         public Medication Medication { get; set; }
+        [ForeignKey("TypeOfDisease")]
+        public int typeofdiseaseid { get; set; }
+        public TypeOfDisease TypeOfDisease { get; set; }
 
         public List<int> symptomid { get; set; }
         public virtual List<Symptom> Symptom { get; set; }

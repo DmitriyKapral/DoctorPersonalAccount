@@ -19,6 +19,7 @@ namespace DoctorsClient.Models
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<Test_result> Test_Results { get; set; }
         public DbSet<Position> Positions { get; set; }
+        public DbSet<TypeOfDisease> TypeOfDiseases { get; set; }
         //public DbSet<Order> orders { get; set; }
 
         public DoctorContext(DbContextOptions<DoctorContext> options)

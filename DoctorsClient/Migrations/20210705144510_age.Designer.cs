@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using DoctorsClient.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DoctorsClient.Migrations
 {
     [DbContext(typeof(DoctorContext))]
-    partial class DoctorContextModelSnapshot : ModelSnapshot
+    [Migration("20210705144510_age")]
+    partial class age
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -151,9 +153,6 @@ namespace DoctorsClient.Migrations
                     b.Property<string>("time")
                         .HasColumnType("text");
 
-                    b.Property<int>("typeofdiseaseid")
-                        .HasColumnType("integer");
-
                     b.HasKey("id");
 
                     b.HasIndex("diagnoseid");
@@ -163,8 +162,6 @@ namespace DoctorsClient.Migrations
                     b.HasIndex("medicationid");
 
                     b.HasIndex("patientid");
-
-                    b.HasIndex("typeofdiseaseid");
 
                     b.ToTable("Outpatient_cards");
                 });
@@ -301,21 +298,6 @@ namespace DoctorsClient.Migrations
                     b.ToTable("Testtwo");
                 });
 
-            modelBuilder.Entity("DoctorsClient.Models.TypeOfDisease", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("name")
-                        .HasColumnType("text");
-
-                    b.HasKey("id");
-
-                    b.ToTable("TypeOfDiseases");
-                });
-
             modelBuilder.Entity("Outpatient_cardSymptom", b =>
                 {
                     b.Property<int>("Outpatient_Cardid")
@@ -398,12 +380,6 @@ namespace DoctorsClient.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DoctorsClient.Models.TypeOfDisease", "TypeOfDisease")
-                        .WithMany()
-                        .HasForeignKey("typeofdiseaseid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Diagnose");
 
                     b.Navigation("Doctor");
@@ -411,8 +387,6 @@ namespace DoctorsClient.Migrations
                     b.Navigation("Medication");
 
                     b.Navigation("Patient");
-
-                    b.Navigation("TypeOfDisease");
                 });
 
             modelBuilder.Entity("Outpatient_cardSymptom", b =>

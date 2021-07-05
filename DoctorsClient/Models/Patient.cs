@@ -14,6 +14,7 @@ namespace DoctorsClient.Models
         public string surname { get; set; }
         public string patronymic { get; set; }
         public string gender { get; set; }
+        public int age { get; set; }
         public string email { get; set; }
         public string numberpolicy { get; set; }
         public string numberpassport { get; set; }
@@ -21,6 +22,8 @@ namespace DoctorsClient.Models
         public string photourl { get; set; }
         public string residenceaddress { get; set; }
         public string placeofresidence { get; set; }
+
+        public List<Outpatient_card> Outpatient_Card { get; set; }
 
     }
 }
