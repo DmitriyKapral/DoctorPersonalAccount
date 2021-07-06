@@ -88,7 +88,7 @@ namespace DoctorsClient.Controllers
             db.SaveChanges();
             return Ok(200);
         }
-        
+
         [HttpGet("hello")]
         [DisableRequestSizeLimit]
         [Produces("application/json")]
@@ -216,8 +216,9 @@ namespace DoctorsClient.Controllers
                 string symptom = "";
                 for (int i = 0; i < item.symptomid.Count(); i++)
                 {
-                    symptom += db.Symptoms.FirstOrDefault(p => p.id == item.symptomid[i]).name + "; ";
+                    symptom += db.Symptoms.FirstOrDefault(p => p.id == item.symptomid[i]).name + ";";
                 }
+                symptom = symptom.Substring(0, symptom.Length - 1);
                 Doctor doctor = db.Doctors.FirstOrDefault(p => p.id == item.doctorid);
                 Position position = db.Positions.FirstOrDefault(p => p.id == doctor.positionid);
                 TypeOfDisease typeOfDisease = db.TypeOfDiseases.FirstOrDefault(p => p.id == item.typeofdiseaseid);
@@ -254,6 +255,95 @@ namespace DoctorsClient.Controllers
         {
             Patient patient = db.Patients.FirstOrDefault(x => x.id == id);
             return patient;
+        }
+
+
+        /// <summary>
+        /// Добавление записи в амблутарную карту (Нужно получать id авторизированного доктора)
+        /// </summary>
+        /// <param name="cardView"></param>
+        /// <param name="idPatient"></param>
+        /// <returns></returns>
+        [HttpPost("Post")]
+        [DisableRequestSizeLimit]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(Exception), 400)]
+        public IActionResult PostRecord(CardView cardView, int idPatient)
+        {
+            int iddiagonose = 0;
+            int idmedication = 0;
+            int idtype = 0;
+            var symptoms = cardView.Symptom.Split(';');
+            List<int> idsymptoms = new List<int>();
+            for (int i = 0; i < symptoms.Length; i++)
+            {
+                if(db.Symptoms.FirstOrDefault(p => p.name == symptoms[i]) == null)
+                {
+                    Symptom symptom = new Symptom
+                    {
+                        name = symptoms[i]
+                    };
+                    db.Symptoms.Add(symptom);
+                    db.SaveChanges();
+                }
+                idsymptoms.Add(db.Symptoms.FirstOrDefault(p => p.name == symptoms[i]).id);
+            }
+            idsymptoms.Sort();
+
+            if (db.Diagnoses.FirstOrDefault(p => p.name == cardView.Diagnose) == null)
+            {
+                Diagnose diagnose = new Diagnose
+                {
+                    name = cardView.Diagnose
+                };
+                db.Diagnoses.Add(diagnose);
+                db.SaveChanges();
+            }
+            iddiagonose = db.Diagnoses.FirstOrDefault(p => p.name == cardView.Diagnose).id;
+
+
+            if (db.Medications.FirstOrDefault(p => p.text == cardView.TestMedication) == null)
+            {
+                Medication medication = new Medication
+                {
+                    text = cardView.TestMedication
+                };
+                db.Medications.Add(medication);
+                db.SaveChanges();
+            }
+            idmedication = db.Medications.ToList().LastOrDefault().id;
+
+            if (db.TypeOfDiseases.FirstOrDefault(p => p.name == cardView.Type) == null)
+            {
+                TypeOfDisease typeOfDisease = new TypeOfDisease
+                {
+                    name = cardView.Type
+                };
+                db.TypeOfDiseases.Add(typeOfDisease);
+                db.SaveChanges();
+            }
+            idtype = db.TypeOfDiseases.FirstOrDefault(p => p.name == cardView.Type).id;
+
+            var datetime = cardView.DateTime.Split(" ");
+
+
+            Outpatient_card outpatient_Card = new Outpatient_card
+            {
+                date = datetime[0],
+                time = datetime[1],
+                inspection_description = cardView.Inspection_description,
+                doctorid = 1,
+                patientid = idPatient,
+                diagnoseid = iddiagonose,
+                medicationid = idmedication,
+                typeofdiseaseid = idtype,
+                symptomid = idsymptoms,
+                test_resultid = new List<int>()
+            };
+            db.Outpatient_cards.Add(outpatient_Card);
+            db.SaveChanges();
+            return Ok(200);
         }
     }
 }
