@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using DoctorsClient.ModelsView;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DoctorsClient.Controllers
 {
@@ -144,7 +146,7 @@ namespace DoctorsClient.Controllers
         public IActionResult GetPatient(string date)
         {
             var patient_view = new List<PatientsView>();
-            var cards = db.Outpatient_cards.Where(p => p.date == date).ToList();
+            var cards = db.Outpatient_cards.Where(p => p.date == date && p.doctorid == CurrentDoctor().id).ToList();
             foreach (var item in cards)
             {
                 Patient patient = db.Patients.Where(p => p.id == item.patientid).FirstOrDefault();
@@ -333,7 +335,7 @@ namespace DoctorsClient.Controllers
                 date = datetime[0],
                 time = datetime[1],
                 inspection_description = cardView.Inspection_description,
-                doctorid = 1,
+                doctorid = CurrentDoctor().id,
                 patientid = idPatient,
                 diagnoseid = iddiagonose,
                 medicationid = idmedication,
@@ -344,6 +346,75 @@ namespace DoctorsClient.Controllers
             db.Outpatient_cards.Add(outpatient_Card);
             db.SaveChanges();
             return Ok(200);
+        }
+
+            
+
+
+
+
+
+
+
+        [HttpPost("Auth")]
+        public IActionResult Token(string username, string password)
+        {
+            var identity = GetIdentity(username, password);
+            if (identity == null)
+            {
+                return BadRequest(new { errorText = "Invalid username or password." });
+            }
+
+            var now = DateTime.UtcNow;
+            // создаем JWT-токен
+            var jwt = new JwtSecurityToken(
+                    issuer: AuthOptions.ISSUER,
+                    audience: AuthOptions.AUDIENCE,
+                    notBefore: now,
+                    claims: identity.Claims,
+                    expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
+                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+            var response = new
+            {
+                access_token = encodedJwt,
+                username = identity.Name
+            };
+
+            return Json(response);
+        }
+
+        private ClaimsIdentity GetIdentity(string username, string password)
+        {
+            Doctor doctor = db.Doctors.FirstOrDefault(x => x.email == username && x.password == password);
+            if (doctor != null)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, doctor.email),
+                    new Claim("Id", doctor.id.ToString())
+                };
+                ClaimsIdentity claimsIdentity =
+                new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
+                    ClaimsIdentity.DefaultRoleClaimType);
+                return claimsIdentity;
+            }
+
+            // если пользователя не найдено
+            return null;
+        }
+
+        /// <summary>
+        /// Получение текущего пользователя
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("Current")]
+        public Doctor CurrentDoctor()
+        {
+            string DoctorId = User.Claims.First(c => c.Type == "Id").Value;
+            var doctor =  db.Doctors.FirstOrDefault(p => p.id == Int32.Parse(DoctorId));
+            return doctor;
         }
     }
 }

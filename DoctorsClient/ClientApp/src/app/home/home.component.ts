@@ -18,13 +18,6 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadTest();
   }
   // получаем данные через сервис
-  loadPatients() {
-    this.http.get(this.url).subscribe((data: Patient[]) => this.patients = data);
-  }
-  loadTest() {
-    this.http.get(this.urls).subscribe((data: Test[]) => this.tests = data);
-  }
 }
