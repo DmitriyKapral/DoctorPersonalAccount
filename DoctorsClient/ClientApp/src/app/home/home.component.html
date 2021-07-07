@@ -1,14 +1,10 @@
 <h3>Login</h3>
 <div>
-  <div class="spacer">
     <label for="Email">Email</label>
-    <input type="text" placeholder="Email" [(ngModel)]="email">
-  </div>
-  <div class="spacer">
+    <input type="text" placeholder="Email" [(ngModel)]="patient.login">
     <label for="password">Password</label>
-    <input type="password" placeholder="password" [(ngModel)]="password" class="form-control" />
-  </div>
+    <input type="password" placeholder="password" [(ngModel)] ="patient.password"/>
   <div class="spacer">
-    <button type="submit" (click)="Login()">Login</button>
+    <button type="submit" (click)="login()">Login</button>
   </div>
 </div>

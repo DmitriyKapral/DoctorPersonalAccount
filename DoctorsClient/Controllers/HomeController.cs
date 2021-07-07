@@ -348,18 +348,25 @@ namespace DoctorsClient.Controllers
             return Ok(200);
         }
 
-            
 
 
 
+        /*[HttpPost, Route("login")]
+        public IActionResult Login([FromBody] Doctor user)
+        {
+            if (user == null)
+                return BadRequest("Invalid client request");
 
+            if (user.email == )
+        }
+        */
 
 
 
         [HttpPost("Auth")]
-        public IActionResult Token(string username, string password)
+        public IActionResult Token([FromBody]Login user)
         {
-            var identity = GetIdentity(username, password);
+            var identity = GetIdentity(user.Email, user.Password);
             if (identity == null)
             {
                 return BadRequest(new { errorText = "Invalid username or password." });

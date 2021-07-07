@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace DoctorsClient
 {
@@ -25,6 +26,16 @@ namespace DoctorsClient
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("EnableCORS", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
+            });
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DoctorContext>(options => options.UseNpgsql(connection));
 
@@ -52,6 +63,7 @@ namespace DoctorsClient
                             ValidateIssuerSigningKey = true,
                         };
                     });
+            
             services.AddControllersWithViews();
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -80,6 +92,9 @@ namespace DoctorsClient
             {
                 app.UseExceptionHandler("/Error");
             }
+            app.UseHttpsRedirection();
+            app.UseCors("EnableCORS");
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

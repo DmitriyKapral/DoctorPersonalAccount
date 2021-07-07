@@ -35,6 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\auth.service.ts" />
     <None Remove="ClientApp\src\app\home\patient.ts" />
     <None Remove="ClientApp\src\app\home\test.ts" />
   </ItemGroup>

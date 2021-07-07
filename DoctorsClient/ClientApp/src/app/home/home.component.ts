@@ -1,23 +1,25 @@
 import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
+
+import { AuthService } from '../auth.service';
 import { Patient } from './patient';
-import { HttpClient } from '@angular/common/http';
-import { Test } from './test';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
+  selector: 'app-login',
+  templateUrl: './home.component.html'
 })
-export class HomeComponent implements OnInit {
-  private url = "/api/home/get";
-  private urls = "/api/home/geting";
-  patient: Patient = new Patient();   // изменяемый товар
-  patients: Patient[];                // массив товаров
-  tests: Test[];
+export class HomeComponent {
+  patient: Patient = new Patient();
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient, private router: Router) { }
+  login() {
+    this.http.post('/api/home' + '/auth', (this.patient.login, this.patient.password))
+      .subscribe((resp: any) => {
 
-  ngOnInit() {
+        this.router.navigate(['counter']);
+
+      });
+
   }
-  // получаем данные через сервис
 }
