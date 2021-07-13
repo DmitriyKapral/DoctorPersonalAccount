@@ -147,6 +147,8 @@ namespace DoctorsClient.Controllers
         {
             var patient_view = new List<PatientsView>();
             var cards = db.Appointments.Where(p => p.date == date && p.doctorid == CurrentDoctor().id).ToList();
+            if (cards == null)
+                return BadRequest();
             foreach (var item in cards)
             {
                 Patient patient = db.Patients.Where(p => p.id == item.patientid).FirstOrDefault();
@@ -228,7 +230,6 @@ namespace DoctorsClient.Controllers
                 Diagnose diagnose = db.Diagnoses.FirstOrDefault(p => p.id == item.diagnoseid);
                 Medication medication = db.Medications.FirstOrDefault(p => p.id == item.medicationid);
 
-
                 card_view.Add(new CardView()
                 {
                     id = item.medicationid,
@@ -241,7 +242,8 @@ namespace DoctorsClient.Controllers
                     diagnose = diagnose.name,
                     inspection_description = item.inspection_description,
                     textMedication = medication.text,
-                    idPatient = patient.id
+                    idPatient = patient.id,
+                    test_result = new List<string>()
                 });
             }
             return Ok(card_view ?? new List<CardView>());
@@ -400,7 +402,7 @@ namespace DoctorsClient.Controllers
         }
         */
 
-        [HttpGet("SearchPatient")]
+        [HttpPost("SearchPatient")]
         public IActionResult SearchPatient([FromBody]SearchPatient searchPatient)
         {
             var fio = searchPatient.fio.Split(" ");

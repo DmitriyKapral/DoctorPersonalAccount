@@ -22,6 +22,7 @@ namespace DoctorsClient.ModelsView
         public string inspection_description { get; set; }
         public string textMedication { get; set; }
         [ForeignKey("Patient")]
+        public List<string> test_result { get; set; }
         public int idPatient { get; set; }
     }
 }
