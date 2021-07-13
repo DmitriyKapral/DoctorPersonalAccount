@@ -138,7 +138,7 @@ namespace DoctorsClient.Controllers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        [HttpGet("GetPatients")]
+        [HttpGet("GetPatients/{date}")]
         [DisableRequestSizeLimit]
         [Produces("application/json")]
         [ProducesResponseType(typeof(List<PatientsView>), 200)]
@@ -146,21 +146,21 @@ namespace DoctorsClient.Controllers
         public IActionResult GetPatient(string date)
         {
             var patient_view = new List<PatientsView>();
-            var cards = db.Outpatient_cards.Where(p => p.date == date && p.doctorid == CurrentDoctor().id).ToList();
+            var cards = db.Appointments.Where(p => p.date == date && p.doctorid == CurrentDoctor().id).ToList();
             foreach (var item in cards)
             {
                 Patient patient = db.Patients.Where(p => p.id == item.patientid).FirstOrDefault();
                 patient_view.Add(new PatientsView()
                 {
-                    Id = patient.id,
-                    Name = patient.name,
-                    Surname = patient.surname,
-                    Patronymic = patient.patronymic,
-                    NumberPolicy = patient.numberpolicy,
-                    Email = patient.email,
-                    NumberPhone = patient.phone,
-                    Age = patient.age,
-                    Time = item.time
+                    id = patient.id,
+                    name = patient.name,
+                    surname = patient.surname,
+                    patronymic = patient.patronymic,
+                    numberPolicy = patient.numberpolicy,
+                    email = patient.email,
+                    numberPhone = patient.phone,
+                    age = patient.age,
+                    time = item.time
                 });
             }
             return Ok(patient_view ?? new List<PatientsView>());
@@ -170,7 +170,7 @@ namespace DoctorsClient.Controllers
         /// </summary>
         /// <param name="id">id пациента</param>
         /// <returns></returns>
-        [HttpGet("GetHistory")]
+        [HttpGet("GetHistory/{id}")]
         [DisableRequestSizeLimit]
         [Produces("application/json")]
         [ProducesResponseType(typeof(List<CardsView>), 200)]
@@ -186,13 +186,13 @@ namespace DoctorsClient.Controllers
                 TypeOfDisease typeOfDisease = db.TypeOfDiseases.FirstOrDefault(p => p.id == item.typeofdiseaseid);
                 card_view.Add(new CardsView()
                 {
-                    IdHistory = item.id,
-                    Diagnose = diagnose.name,
-                    NameDoctor = doctor.name,
-                    SurnameDoctor = doctor.surname,
-                    PatronymicDoctor = doctor.patronymic,
-                    Date = item.date,
-                    Type = typeOfDisease.name
+                    id = item.id,
+                    diagnose = diagnose.name,
+                    nameDoctor = doctor.name,
+                    surnamedoctor = doctor.surname,
+                    patronymicdoctor = doctor.patronymic,
+                    date = item.date,
+                    type = typeOfDisease.name
                 });
             }
             return Ok(card_view ?? new List<CardsView>());
@@ -221,6 +221,7 @@ namespace DoctorsClient.Controllers
                     symptom += db.Symptoms.FirstOrDefault(p => p.id == item.symptomid[i]).name + ";";
                 }
                 symptom = symptom.Substring(0, symptom.Length - 1);
+                Patient patient = db.Patients.FirstOrDefault(p => p.id == item.patientid);
                 Doctor doctor = db.Doctors.FirstOrDefault(p => p.id == item.doctorid);
                 Position position = db.Positions.FirstOrDefault(p => p.id == doctor.positionid);
                 TypeOfDisease typeOfDisease = db.TypeOfDiseases.FirstOrDefault(p => p.id == item.typeofdiseaseid);
@@ -230,15 +231,17 @@ namespace DoctorsClient.Controllers
 
                 card_view.Add(new CardView()
                 {
-                    IdRecord = item.medicationid,
-                    DateTime = item.date + " " + item.time,
-                    FIODoctor = doctor.surname + " " + doctor.name + " " + doctor.patronymic,
-                    PositionDoctor = position.name,
-                    Symptom = symptom,
-                    Type = typeOfDisease.name,
-                    Diagnose = diagnose.name,
-                    Inspection_description = item.inspection_description,
-                    TestMedication = medication.text
+                    id = item.medicationid,
+                    fioPatient = patient.surname + " " + patient.name + " " + patient.patronymic,
+                    dateTime = item.date + " " + item.time,
+                    fioDoctor = doctor.surname + " " + doctor.name + " " + doctor.patronymic,
+                    positionDoctor = position.name,
+                    symptom = symptom,
+                    type = typeOfDisease.name,
+                    diagnose = diagnose.name,
+                    inspection_description = item.inspection_description,
+                    textMedication = medication.text,
+                    idPatient = patient.id
                 });
             }
             return Ok(card_view ?? new List<CardView>());
@@ -271,12 +274,12 @@ namespace DoctorsClient.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(typeof(Exception), 400)]
-        public IActionResult PostRecord(CardView cardView, int idPatient)
+        public IActionResult PostRecord([FromBody]CardView cardView)
         {
             int iddiagonose = 0;
             int idmedication = 0;
             int idtype = 0;
-            var symptoms = cardView.Symptom.Split(';');
+            var symptoms = cardView.symptom.Split(';');
             List<int> idsymptoms = new List<int>();
             for (int i = 0; i < symptoms.Length; i++)
             {
@@ -293,50 +296,50 @@ namespace DoctorsClient.Controllers
             }
             idsymptoms.Sort();
 
-            if (db.Diagnoses.FirstOrDefault(p => p.name == cardView.Diagnose) == null)
+            if (db.Diagnoses.FirstOrDefault(p => p.name == cardView.diagnose) == null)
             {
                 Diagnose diagnose = new Diagnose
                 {
-                    name = cardView.Diagnose
+                    name = cardView.diagnose
                 };
                 db.Diagnoses.Add(diagnose);
                 db.SaveChanges();
             }
-            iddiagonose = db.Diagnoses.FirstOrDefault(p => p.name == cardView.Diagnose).id;
+            iddiagonose = db.Diagnoses.FirstOrDefault(p => p.name == cardView.diagnose).id;
 
 
-            if (db.Medications.FirstOrDefault(p => p.text == cardView.TestMedication) == null)
+            if (db.Medications.FirstOrDefault(p => p.text == cardView.textMedication) == null)
             {
                 Medication medication = new Medication
                 {
-                    text = cardView.TestMedication
+                    text = cardView.textMedication
                 };
                 db.Medications.Add(medication);
                 db.SaveChanges();
             }
             idmedication = db.Medications.ToList().LastOrDefault().id;
 
-            if (db.TypeOfDiseases.FirstOrDefault(p => p.name == cardView.Type) == null)
+            if (db.TypeOfDiseases.FirstOrDefault(p => p.name == cardView.type) == null)
             {
                 TypeOfDisease typeOfDisease = new TypeOfDisease
                 {
-                    name = cardView.Type
+                    name = cardView.type
                 };
                 db.TypeOfDiseases.Add(typeOfDisease);
                 db.SaveChanges();
             }
-            idtype = db.TypeOfDiseases.FirstOrDefault(p => p.name == cardView.Type).id;
+            idtype = db.TypeOfDiseases.FirstOrDefault(p => p.name == cardView.type).id;
 
-            var datetime = cardView.DateTime.Split(" ");
+            var datetime = cardView.dateTime.Split(" ");
 
 
             Outpatient_card outpatient_Card = new Outpatient_card
             {
                 date = datetime[0],
                 time = datetime[1],
-                inspection_description = cardView.Inspection_description,
+                inspection_description = cardView.inspection_description,
                 doctorid = CurrentDoctor().id,
-                patientid = idPatient,
+                patientid = cardView.idPatient,
                 diagnoseid = iddiagonose,
                 medicationid = idmedication,
                 typeofdiseaseid = idtype,
@@ -347,8 +350,44 @@ namespace DoctorsClient.Controllers
             db.SaveChanges();
             return Ok(200);
         }
+        [HttpGet("Types")]
+        public IActionResult GetTypes()
+        { 
+            return Ok(db.TypeOfDiseases.ToList());
+        }
+        [HttpGet("Diagnose")]
+        public IActionResult GetDiagnose()
+        {
+            return Ok(db.Diagnoses.ToList());
+        }
 
+        [HttpGet("Doctor")]
+        public IActionResult GetDoctor()
+        {
+            var doctor_view = new List<DoctorView>();
+            doctor_view.Add(new DoctorView()
+            {
+                fio = CurrentDoctor().surname + " " + CurrentDoctor().name + " " + CurrentDoctor().patronymic,
+                position = db.Positions.FirstOrDefault(p => p.id == CurrentDoctor().positionid).name
+            });
+            return Ok(doctor_view ?? new List<DoctorView>());
+        }
 
+        [HttpPost("AddAppointment")]
+        public IActionResult AddAppointment([FromBody]_AppointmentView appointmentview)
+        {
+            var datetime = appointmentview.datetime.Split("T");
+            Appointment appointment = new Appointment
+            {
+                date = datetime[0].ToString(),
+                time = datetime[1],
+                patientid = appointmentview.idpatient,
+                doctorid = CurrentDoctor().id
+            };
+            db.Appointments.Add(appointment);
+            db.SaveChanges();
+            return Ok(200);
+        }
 
 
         /*[HttpPost, Route("login")]
@@ -361,9 +400,19 @@ namespace DoctorsClient.Controllers
         }
         */
 
-
+        [HttpGet("SearchPatient")]
+        public IActionResult SearchPatient([FromBody]SearchPatient searchPatient)
+        {
+            var fio = searchPatient.fio.Split(" ");
+            Patient patient = db.Patients.FirstOrDefault(p => p.name == fio[1] && p.surname == fio[0] && p.patronymic == fio[2] && p.numberpolicy == searchPatient.numberpolicy);
+            if (patient == null)
+                return BadRequest();
+            else
+                return Ok(patient);
+        }
 
         [HttpPost("Auth")]
+        [AllowAnonymous]
         public IActionResult Token([FromBody]Login user)
         {
             var identity = GetIdentity(user.Email, user.Password);
@@ -385,7 +434,7 @@ namespace DoctorsClient.Controllers
 
             var response = new
             {
-                access_token = encodedJwt,
+                token = encodedJwt,
                 username = identity.Name
             };
 
@@ -417,6 +466,7 @@ namespace DoctorsClient.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("Current")]
+        [Authorize]
         public Doctor CurrentDoctor()
         {
             string DoctorId = User.Claims.First(c => c.Type == "Id").Value;

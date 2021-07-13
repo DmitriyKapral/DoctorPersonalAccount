@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using DoctorsClient.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DoctorsClient.Migrations
 {
     [DbContext(typeof(DoctorContext))]
-    partial class DoctorContextModelSnapshot : ModelSnapshot
+    [Migration("20210710192904_appointment")]
+    partial class appointment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,10 +67,10 @@ namespace DoctorsClient.Migrations
                     b.Property<string>("date")
                         .HasColumnType("text");
 
-                    b.Property<int>("doctorid")
+                    b.Property<int>("iddoctor")
                         .HasColumnType("integer");
 
-                    b.Property<int>("patientid")
+                    b.Property<int>("idpatient")
                         .HasColumnType("integer");
 
                     b.Property<string>("time")

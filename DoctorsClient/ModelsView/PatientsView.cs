@@ -9,14 +9,14 @@ namespace DoctorsClient.ModelsView
     public class PatientsView
     {
         [Key]
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Surname { get; set; }
-        public string Patronymic { get; set; }
-        public string NumberPolicy { get; set; }
-        public string Email { get; set; }
-        public string NumberPhone { get; set; }
-        public int Age { get; set; }
-        public string Time { get; set; }
+        public int id { get; set; }
+        public string name { get; set; }
+        public string surname { get; set; }
+        public string patronymic { get; set; }
+        public string numberPolicy { get; set; }
+        public string email { get; set; }
+        public string numberPhone { get; set; }
+        public int age { get; set; }
+        public string time { get; set; }
     }
 }

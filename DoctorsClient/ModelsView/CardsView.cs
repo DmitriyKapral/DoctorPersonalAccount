@@ -9,12 +9,12 @@ namespace DoctorsClient.ModelsView
     public class CardsView
     {
         [Key]
-        public int IdHistory { get; set; }
-        public string Diagnose { get; set; }
-        public string NameDoctor { get; set; }
-        public string SurnameDoctor { get; set; }
-        public string PatronymicDoctor { get; set; }
-        public string Date { get; set; }
-        public string Type { get; set; }
+        public int id { get; set; }
+        public string diagnose { get; set; }
+        public string nameDoctor { get; set; }
+        public string surnamedoctor { get; set; }
+        public string patronymicdoctor { get; set; }
+        public string date { get; set; }
+        public string type { get; set; }
     }
 }
