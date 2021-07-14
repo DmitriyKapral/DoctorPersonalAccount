@@ -264,6 +264,38 @@ namespace DoctorsClient.Controllers
             return patient;
         }
 
+        [HttpPost("AddTest")]
+        public IActionResult PostTest([FromBody] AppointmentTestView appointmentTestView)
+        {
+            var datetime = appointmentTestView.datetime.Split("T");
+            AppointmentTest appointmentTest = new AppointmentTest
+            {
+                name = appointmentTestView.name,
+                date = datetime[0],
+                time = datetime[1],
+                patientid = appointmentTestView.patientid,
+                doctorid = CurrentDoctor().id
+            };
+            db.AppointmentTests.Add(appointmentTest);
+            db.SaveChanges();
+            return Ok(200);
+        }
+
+        [HttpGet("testResult/{id}")]
+        public IActionResult TestResultId(int id)
+        {
+            var card = db.Outpatient_cards.FirstOrDefault(p => p.id == id).test_resultid;
+            List<Test_resultView> test_ResultViews = new List<Test_resultView>();
+            foreach (var item in card)
+            {
+                test_ResultViews.Add(new Test_resultView
+                {
+                    name = db.Test_Results.FirstOrDefault(p => p.id == item).name,
+                    urlresult = db.Test_Results.FirstOrDefault(p => p.id == item).urlresult
+                });
+            }
+            return Ok(test_ResultViews ?? new List<Test_resultView>());
+        }
 
         /// <summary>
         /// Добавление записи в амблутарную карту (Нужно получать id авторизированного доктора)

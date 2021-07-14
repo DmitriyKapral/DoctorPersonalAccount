@@ -21,6 +21,7 @@ namespace DoctorsClient.Models
         public DbSet<Position> Positions { get; set; }
         public DbSet<TypeOfDisease> TypeOfDiseases { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<AppointmentTest> AppointmentTests { get; set; }
         //public DbSet<Order> orders { get; set; }
 
         public DoctorContext(DbContextOptions<DoctorContext> options)

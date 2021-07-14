@@ -4,17 +4,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DoctorsClient.Models
+namespace DoctorsClient.ModelsView
 {
-    public class Test_result
+    public class Test_resultView
     {
         [Key]
         public int id { get; set; }
         public string name { get; set; }
         public string urlresult { get; set; }
-        public string date { get; set; }
-
-        public List<int> outpatient_cardid { get; set; }
-        public virtual List<Outpatient_card> Outpatient_Card { get; set; }
     }
 }
