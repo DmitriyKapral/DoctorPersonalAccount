@@ -27,114 +27,10 @@ namespace DoctorsClient.Controllers
         {
             db = context;
         }
-        /*[Authorize]
-        public IActionResult Index()
-        {
-            if (User.Identity.IsAuthenticated)
-            {
-                return Content(User.Identity.Name);
-            }
-            return Content("не аутентифицирован");
-        }
-        public IActionResult About()
-        {
-            return Content("Authorized");
-        }*/
-        [HttpGet("get")]
-        [DisableRequestSizeLimit]
-        [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Exception), 400)]
-        public IActionResult Gete()
-        {
-            return Ok(db.Patients.ToList());
-        }
-        [HttpGet("geting")]
-        [DisableRequestSizeLimit]
-        [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Exception), 400)]
-        public IActionResult Geting(int? id = 1)
-        {
-            /*Account account = db.accounts.Find(id);
-            account.test = db.test.Where(m => m.accountid == account.id);
-            return Ok(account);*/
-            var players = db.Test.Include(p => p.Account);
-            return Ok(players.ToList());
-        }
-        [HttpGet("get/{date}")]
-        [DisableRequestSizeLimit]
-        [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Exception), 400)]
-        public IActionResult Get(string date)
-        {
-            var card = db.Outpatient_cards.Include(p => p.Patient).Include(p => p.Doctor);
-            return Ok(card.Where(p => p.date == date && p.doctorid == 1));//Надо будет как то запоминать айди доктора при авторизации
-        }
-        /*[HttpPost]
-        public IActionResult Create(Account account)
-        {
-            db.Accounts.Add(account);
-            db.SaveChanges();
-            return Ok(200);
-        }*/
-        [HttpPost]
-        [DisableRequestSizeLimit]
-        [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Exception), 400)]
-        public IActionResult GetPatient(Account account)
-        {
-            db.Accounts.Add(account);
-            db.SaveChanges();
-            return Ok(200);
-        }
 
-        [HttpGet("hello")]
-        [DisableRequestSizeLimit]
-        [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Exception), 400)]
-        public IActionResult Details(int id = 2)
-        {
-            Account student = db.Accounts.Find(id);
-            ViewBag.test = db.Test.ToList();
-            return View(student);
-        }
-        [HttpGet("cards/{id}")]
-        [DisableRequestSizeLimit]
-        [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Exception), 400)]
-        public Outpatient_card Cards(int id)
-        {
-            Outpatient_card card = db.Outpatient_cards.FirstOrDefault(x => x.id == id);
-            return card;
-        }
-
-        /*[HttpGet]
-        [DisableRequestSizeLimit]
-        [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Exception), 400)]
-        public IActionResult GetHistory()
-        {
-            List<Outpatient_card> outpatient_Card = new List<Outpatient_card>();
-            var 
-        }*/
-        [HttpGet("gettest")]
-        [DisableRequestSizeLimit]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(List<Account>), 200)]
-        [ProducesResponseType(typeof(Exception), 400)]
-        public IActionResult Gettest()
-        {
-            return View(db.Accounts.ToList());
-        }
 
         /// <summary>
-        /// Вывод пациентов записанных к доктору(доделать, вывести текущего пользователя и получить его айди)
+        /// Вывод пациентов записанных к доктору
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
@@ -234,7 +130,7 @@ namespace DoctorsClient.Controllers
                 {
                     id = item.medicationid,
                     fioPatient = patient.surname + " " + patient.name + " " + patient.patronymic,
-                    dateTime = item.date + " " + item.time,
+                    dateTime = item.date + "T" + item.time,
                     fioDoctor = doctor.surname + " " + doctor.name + " " + doctor.patronymic,
                     positionDoctor = position.name,
                     symptom = symptom,
@@ -264,6 +160,12 @@ namespace DoctorsClient.Controllers
             return patient;
         }
 
+
+        /// <summary>
+        /// Добавление сдачи анализов
+        /// </summary>
+        /// <param name="appointmentTestView"></param>
+        /// <returns></returns>
         [HttpPost("AddTest")]
         public IActionResult PostTest([FromBody] AppointmentTestView appointmentTestView)
         {
@@ -281,6 +183,11 @@ namespace DoctorsClient.Controllers
             return Ok(200);
         }
 
+        /// <summary>
+        /// Вывод результатов анализов
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("testResult/{id}")]
         public IActionResult TestResultId(int id)
         {
@@ -301,7 +208,6 @@ namespace DoctorsClient.Controllers
         /// Добавление записи в амблутарную карту (Нужно получать id авторизированного доктора)
         /// </summary>
         /// <param name="cardView"></param>
-        /// <param name="idPatient"></param>
         /// <returns></returns>
         [HttpPost("Post")]
         [DisableRequestSizeLimit]
@@ -313,7 +219,7 @@ namespace DoctorsClient.Controllers
             int iddiagonose = 0;
             int idmedication = 0;
             int idtype = 0;
-            var symptoms = cardView.symptom.Split(';');
+            var symptoms = cardView.symptom.Split(", ");
             List<int> idsymptoms = new List<int>();
             for (int i = 0; i < symptoms.Length; i++)
             {
@@ -364,7 +270,7 @@ namespace DoctorsClient.Controllers
             }
             idtype = db.TypeOfDiseases.FirstOrDefault(p => p.name == cardView.type).id;
 
-            var datetime = cardView.dateTime.Split(" ");
+            var datetime = cardView.dateTime.Split("T");
 
 
             Outpatient_card outpatient_Card = new Outpatient_card
@@ -384,17 +290,43 @@ namespace DoctorsClient.Controllers
             db.SaveChanges();
             return Ok(200);
         }
+
+
+        /// <summary>
+        /// Вывод типов заболеваний
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Types")]
         public IActionResult GetTypes()
         { 
             return Ok(db.TypeOfDiseases.ToList());
         }
+
+        /// <summary>
+        /// Вывод диагнозов
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Diagnose")]
         public IActionResult GetDiagnose()
         {
             return Ok(db.Diagnoses.ToList());
         }
 
+        /// <summary>
+        /// Вывод симптомов
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("Symptoms")]
+        public IActionResult GetSympoms()
+        {
+            return Ok(db.Symptoms.ToList());
+        }
+
+
+        /// <summary>
+        /// Вывод авторизированного доктора
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Doctor")]
         public IActionResult GetDoctor()
         {
@@ -407,6 +339,11 @@ namespace DoctorsClient.Controllers
             return Ok(doctor_view ?? new List<DoctorView>());
         }
 
+        /// <summary>
+        /// Добавление записи к врачу
+        /// </summary>
+        /// <param name="appointmentview"></param>
+        /// <returns></returns>
         [HttpPost("AddAppointment")]
         public IActionResult AddAppointment([FromBody]_AppointmentView appointmentview)
         {
@@ -423,20 +360,16 @@ namespace DoctorsClient.Controllers
             return Ok(200);
         }
 
-
-        /*[HttpPost, Route("login")]
-        public IActionResult Login([FromBody] Doctor user)
-        {
-            if (user == null)
-                return BadRequest("Invalid client request");
-
-            if (user.email == )
-        }
-        */
-
+        /// <summary>
+        /// Вывод пациента по ФИО и Номеру полиса
+        /// </summary>
+        /// <param name="searchPatient"></param>
+        /// <returns></returns>
         [HttpPost("SearchPatient")]
         public IActionResult SearchPatient([FromBody]SearchPatient searchPatient)
         {
+            if(searchPatient.fio == null)
+                return BadRequest();
             var fio = searchPatient.fio.Split(" ");
             Patient patient = db.Patients.FirstOrDefault(p => p.name == fio[1] && p.surname == fio[0] && p.patronymic == fio[2] && p.numberpolicy == searchPatient.numberpolicy);
             if (patient == null)
@@ -445,7 +378,14 @@ namespace DoctorsClient.Controllers
                 return Ok(patient);
         }
 
+
+        /// <summary>
+        /// Авторизаця
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         [HttpPost("Auth")]
+        [Authorize]
         [AllowAnonymous]
         public IActionResult Token([FromBody]Login user)
         {
